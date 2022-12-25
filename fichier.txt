@@ -1,0 +1,20 @@
+    timesheet_id = db.Column(db.Integer, primary_key=True)
+    created = db.Column(db.DateTime, default=datetime.utcnow)
+    updated = db.Column(db.DateTime)
+    employee_id = db.Column(db.Integer, db.ForeignKey('user.employee_id'))
+    description = db.Column(db.String(255))
+    hours = db.Column(db.Numeric(9, 2))
+    billable = db.Column(db.Boolean, default=False)
+    retainer = db.Column(db.Boolean, default=False)
+    client_id = db.Column(db.Integer, db.ForeignKey('client.client_id'), default=None)
+    project_id = db.Column(db.Integer, db.ForeignKey('project.project_id'), default=None)
+    task_id = db.Column(db.Integer, default=None)
+    timesheet_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    -------------------------------
+    the ForeignKey is like this :
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+    ------------------------------- 
+    inside the main entity do the relationshipt as it follows :
+    comments = db.relationship('Comment', backref='post')
+    -------------------------------
