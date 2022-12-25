@@ -66,11 +66,11 @@ cars_schema= CarsSchema(many=True)
 class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True) # primary keys are required by SQLAlchemy
     email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(100))
+    password = db.Column(db.String(100), nullable = False)
     name = db.Column(db.String(100))
     image = db.Column(db.Integer() , db.ForeignKey("userimage.id"))
-    region = db.Column(db.String(length=80), nullable=False)
-    phone_number = db.Column(db.String(10), nullable=False)
+    region = db.Column(db.String(length=80))
+    phone_number = db.Column(db.String(10))
     
 class UserSchema(ma.Schema):
     class Meta:

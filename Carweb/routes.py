@@ -1,11 +1,11 @@
 from Carweb import app
 from Carweb.models import *
 from Carweb import db, ma 
-from flask import Flask , jsonify, request
+from flask import Flask , jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 
-from flask_filter import query_with_filters
+from flask_filter import query_filter
 
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -155,52 +155,52 @@ def deleteAnnonce(id):
 #**************************** START FILTRAGE
 @app.route('/annonce/car/<title>', methods=['POST'])
 def title_search():
-    cars = query_with_filters(Car, request.json.get("title"), CarsSchema)
+    cars = query_filter(Car, request.json.get("title"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<name>', methods=['POST'])
 def name_search():
-    cars = query_with_filters(Car, request.json.get("name"), CarsSchema)
+    cars = query_filter(Car, request.json.get("name"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<Car_Brand>', methods=['POST'])
 def brand_search():
-    cars = query_with_filters(Car, request.json.get("Car_Brand"), CarsSchema)
+    cars = query_filter(Car, request.json.get("Car_Brand"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<price>', methods=['POST'])
 def price_search():
-    cars = query_with_filters(Car, request.json.get("price"), CarsSchema)
+    cars = query_filter(Car, request.json.get("price"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<fuel>', methods=['POST'])
 def fuel_search():
-    cars = query_with_filters(Car, request.json.get("fuel"), CarsSchema)
+    cars = query_filter(Car, request.json.get("fuel"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<seats>', methods=['POST'])
 def seats_search():
-    cars = query_with_filters(Car, request.json.get("seats"), CarsSchema)
+    cars = query_filter(Car, request.json.get("seats"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<region>', methods=['POST'])
 def region_search():
-    cars = query_with_filters(Car, request.json.get("region"), CarsSchema)
+    cars = query_filter(Car, request.json.get("region"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<year>', methods=['POST'])
-def pet_search():
-    cars = query_with_filters(Car, request.json.get("year"), CarsSchema)
+def pet_search_by_year():
+    cars = query_filter(Car, request.json.get("year"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<kilos>', methods=['POST'])
-def pet_search():
-    cars = query_with_filters(Car, request.json.get("kilos"), CarsSchema)
+def pet_search_by_kilos():
+    cars = query_filter(Car, request.json.get("kilos"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 
 @app.route('/annonce/car/<description>', methods=['POST'])
-def pet_search():
-    cars = query_with_filters(Car, request.json.get("description"), CarsSchema)
+def pet_search_by_description():
+    cars = query_filter(Car, request.json.get("description"), CarsSchema)
     return jsonify(car_schema.dump(cars)), 200
 #**************************** END FILTRAGE
 
@@ -212,20 +212,24 @@ def pet_search():
 from Carweb.form import*
 from flask_login import login_user, logout_user, login_required, current_user
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['POST'])
 def register_page():
-    form = RegisterForm()
-    if form.validate_on_submit():
+    emailAdr = request.json["email"]
+    password = request.json["password"]
+    userToVerify = User.query.filter_by(email = emailAdr).first()
+    if not (userToVerify):
         user_to_create = User(
-                                email_address=form.email_address.data,
-                                password=form.password1.data)
+                                email=emailAdr,
+                                password=password)
         
         db.session.add(user_to_create)
-        db.session.commit()
-        
-        login_user(user_to_create)
-        access_token = create_access_token(identity=user_to_create)
-        return jsonify(access_token=access_token)
+        db.session.commit()    
+        return jsonify(user_to_create)
+    else:
+        return jsonify({"error": "user existing"})
+
+    # login_user(user_to_create)
+    # access_token = create_access_token(identity=user_to_create)
 
 
 @app.route('/login', methods=['GET', 'POST'])
